@@ -426,23 +426,23 @@ export default function SiteInfluencerManaus() {
       </section>
 
       <section className="border-b border-white/10 bg-[#08120c]">
-        <div className="mx-auto max-w-7xl px-4 py-5 sm:px-5 md:px-8 lg:px-14">
-          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-2">
-            {gallery.map((item, index) => (
-              <div
-                key={index}
-                className="group min-w-[82%] snap-center overflow-hidden rounded-[1.25rem] border border-white/10 bg-black/20 shadow-[0_20px_50px_rgba(0,0,0,0.25)] sm:min-w-0 sm:rounded-[1.4rem]"
-              >
-                <SmartVideo
-                  src={item.video}
-                  poster={item.poster}
-                  className="aspect-[16/10] w-full object-cover opacity-90 transition duration-500 group-hover:scale-[1.03] sm:aspect-[16/9]"
-                />
-              </div>
-            ))}
-          </div>
+  <div className="mx-auto max-w-7xl px-4 py-5 sm:px-5 md:px-8 lg:px-14">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {gallery.map((item, index) => (
+        <div
+          key={index}
+          className="group overflow-hidden rounded-[1.25rem] border border-white/10 bg-black/20 shadow-[0_20px_50px_rgba(0,0,0,0.25)] sm:rounded-[1.4rem]"
+        >
+          <SmartVideo
+            src={item.video}
+            poster={item.poster}
+            className="aspect-[16/10] w-full object-cover opacity-90 transition duration-500 group-hover:scale-[1.03] sm:aspect-[16/9]"
+          />
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
 
       <section id="parcerias" className="border-y border-white/10 bg-white/[0.03]">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-5 sm:py-16 md:px-8 lg:px-14">
