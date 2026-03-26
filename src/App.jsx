@@ -1,33 +1,38 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-function SmartVideo({ src, className = "" }) {
+function SmartVideo({ src, className = "", poster = "" }) {
   return (
     <video
-      src={src}
       muted
       loop
       playsInline
       autoPlay
       preload="metadata"
+      poster={poster}
       className={className}
-    />
+    >
+      <source src={src} type="video/mp4" />
+    </video>
   );
 }
 
 export default function SiteInfluencerManaus() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // CLOUDINARY
   const VIDEO_PASSEIO =
     "https://res.cloudinary.com/dvyqn6i09/video/upload/f_auto,q_auto/video-passeio_egzmvm.mp4";
 
   const VIDEO_DESTAQUE =
     "https://res.cloudinary.com/dvyqn6i09/video/upload/f_auto,q_auto/video-destaque_a1rkzo.mp4";
 
-  // NO MOMENTO, só existem esses dois
+  const POSTER_PASSEIO =
+    "https://res.cloudinary.com/dvyqn6i09/video/upload/so_0,f_jpg,q_auto/video-passeio_egzmvm.jpg";
+
+  const POSTER_DESTAQUE =
+    "https://res.cloudinary.com/dvyqn6i09/video/upload/so_0,f_jpg,q_auto/video-destaque_a1rkzo.jpg";
+
   const VIDEO_FUNDO = VIDEO_DESTAQUE;
-  const VIDEO_COMIDA = VIDEO_DESTAQUE;
 
   const tourStops = [
     {
@@ -35,20 +40,25 @@ export default function SiteInfluencerManaus() {
       title: "Passeios e descobertas",
       text: "Lugares, experiências e espaços especiais mostrados com leveza, beleza e sensação de presença.",
       video: VIDEO_PASSEIO,
+      poster: POSTER_PASSEIO,
       points: ["Experiência visual", "Atmosfera marcante", "Valor para o local"],
-      accent: "Perfeito para lugares que querem ser lembrados",
+      accent: "Perfeito para lugares que querem ser lembrados.",
     },
     {
       eyebrow: "Parceria 02",
       title: "Vivências e presença",
       text: "Conteúdos que mostram atmosfera, detalhes e estilo de forma natural, aproximando o público da experiência real.",
       video: VIDEO_DESTAQUE,
+      poster: POSTER_DESTAQUE,
       points: ["Conteúdo autêntico", "Estética forte", "Conexão real"],
-      accent: "Ideal para marcas e lugares que querem ser percebidos",
+      accent: "Ideal para marcas e lugares que querem ser percebidos.",
     },
   ];
 
-  const gallery = [VIDEO_DESTAQUE, VIDEO_PASSEIO];
+  const gallery = [
+    { video: VIDEO_DESTAQUE, poster: POSTER_DESTAQUE },
+    { video: VIDEO_PASSEIO, poster: POSTER_PASSEIO },
+  ];
 
   const fadeUp = {
     hidden: { opacity: 0, y: 30 },
@@ -166,8 +176,8 @@ export default function SiteInfluencerManaus() {
                   Contato rápido
                 </p>
                 <p className="mt-3 text-sm leading-7 text-zinc-300">
-                  Gostou do estilo da Esther e quer divulgar sua marca com mais
-                  presença e estética?
+                  Gostou do estilo da Esther e quer divulgar sua marca de forma
+                  natural e profissional?
                 </p>
                 <a
                   href="#contato"
@@ -183,16 +193,11 @@ export default function SiteInfluencerManaus() {
       </AnimatePresence>
 
       <section id="inicio" className="relative overflow-hidden border-b border-white/10">
-        <video
-          muted
-          loop
-          playsInline
-          autoPlay
-          preload="metadata"
+        <SmartVideo
+          src={VIDEO_FUNDO}
+          poster={POSTER_DESTAQUE}
           className="absolute inset-0 h-full w-full object-cover opacity-35"
-        >
-          <source src={VIDEO_FUNDO} type="video/mp4" />
-        </video>
+        />
 
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,8,6,0.84)_0%,rgba(4,8,6,0.74)_35%,rgba(4,8,6,0.58)_60%,rgba(4,8,6,0.72)_100%)] lg:bg-[linear-gradient(90deg,rgba(4,8,6,0.82)_0%,rgba(4,8,6,0.62)_35%,rgba(4,8,6,0.42)_60%,rgba(4,8,6,0.60)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(40,109,67,0.22),transparent_35%)]" />
@@ -234,6 +239,31 @@ export default function SiteInfluencerManaus() {
                 Falar com ela
               </a>
             </div>
+
+            <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-3">
+              {[
+                [
+                  "Marcas bem posicionadas",
+                  "Conteúdo que valoriza sem parecer anúncio forçado",
+                ],
+                [
+                  "Experiência visual forte",
+                  "Vídeos que transmitem atmosfera e identidade",
+                ],
+                [
+                  "Contato simples",
+                  "Quem se interessa consegue chamar direto",
+                ],
+              ].map(([title, text]) => (
+                <div
+                  key={title}
+                  className="rounded-[1.25rem] border border-white/10 bg-white/[0.04] p-4 backdrop-blur sm:rounded-[1.4rem]"
+                >
+                  <p className="text-sm font-semibold text-white">{title}</p>
+                  <p className="mt-2 text-sm leading-6 text-zinc-300">{text}</p>
+                </div>
+              ))}
+            </div>
           </motion.div>
 
           <motion.div
@@ -244,16 +274,11 @@ export default function SiteInfluencerManaus() {
           >
             <div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[rgba(9,16,12,0.75)] p-2 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:rounded-[2rem]">
               <div className="overflow-hidden rounded-[1.25rem] sm:rounded-[1.6rem]">
-                <video
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
+                <SmartVideo
+                  src={VIDEO_DESTAQUE}
+                  poster={POSTER_DESTAQUE}
                   className="aspect-[4/5] w-full object-cover"
-                >
-                  <source src={VIDEO_DESTAQUE} type="video/mp4" />
-                </video>
+                />
               </div>
 
               <div className="px-2 pb-1 pt-4 sm:pt-5">
@@ -273,13 +298,14 @@ export default function SiteInfluencerManaus() {
       <section className="border-b border-white/10 bg-[#08120c]">
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-5 md:px-8 lg:px-14">
           <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-2">
-            {gallery.map((src, index) => (
+            {gallery.map((item, index) => (
               <div
-                key={`${src}-${index}`}
+                key={index}
                 className="group min-w-[82%] snap-center overflow-hidden rounded-[1.25rem] border border-white/10 bg-black/20 shadow-[0_20px_50px_rgba(0,0,0,0.25)] sm:min-w-0 sm:rounded-[1.4rem]"
               >
                 <SmartVideo
-                  src={src}
+                  src={item.video}
+                  poster={item.poster}
                   className="aspect-[16/10] w-full object-cover opacity-90 transition duration-500 group-hover:scale-[1.03] sm:aspect-[16/9]"
                 />
               </div>
@@ -366,17 +392,11 @@ export default function SiteInfluencerManaus() {
                       isReversed ? "lg:order-1" : "lg:order-2"
                     }`}
                   >
-                    <video
-                      key={item.video}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      preload="auto"
+                    <SmartVideo
+                      src={item.video}
+                      poster={item.poster}
                       className="aspect-[9/12] w-full object-cover sm:aspect-[16/10] lg:h-full lg:min-h-[460px] lg:aspect-auto"
-                    >
-                      <source src={item.video} type="video/mp4" />
-                    </video>
+                    />
                   </div>
                 </motion.article>
               );
@@ -468,6 +488,17 @@ export default function SiteInfluencerManaus() {
                     →
                   </span>
                 </a>
+              </div>
+
+              <div className="mt-6 rounded-[1.3rem] border border-white/10 bg-black/20 p-4 sm:mt-8 sm:rounded-[1.6rem] sm:p-5">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-emerald-300 sm:text-xs sm:tracking-[0.28em]">
+                  Para quem faz sentido
+                </p>
+                <p className="mt-3 text-sm leading-7 text-zinc-200 sm:text-base sm:leading-8">
+                  Restaurantes, cafeterias, eventos, locais turísticos, marcas,
+                  experiências e negócios que querem aparecer com mais
+                  presença, estética e conexão com o público.
+                </p>
               </div>
             </div>
           </div>
