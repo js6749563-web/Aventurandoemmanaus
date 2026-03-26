@@ -240,21 +240,7 @@ export default function SiteInfluencerManaus() {
                 </a>
               </div>
 
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {[
-                  ["Imagem forte", "Estética limpa, moderna e marcante."],
-                  ["Mais desejo", "Vídeos que valorizam o ambiente e a experiência."],
-                  ["Contato simples", "Quem gostar do trabalho chama direto."],
-                ].map(([title, text]) => (
-                  <div
-                    key={title}
-                    className="rounded-[1.2rem] border border-white/10 bg-white/[0.04] p-4 backdrop-blur"
-                  >
-                    <p className="text-sm font-semibold text-white">{title}</p>
-                    <p className="mt-2 text-sm leading-6 text-zinc-300">{text}</p>
-                  </div>
-                ))}
-              </div>
+              
             </motion.div>
 
             <motion.div
