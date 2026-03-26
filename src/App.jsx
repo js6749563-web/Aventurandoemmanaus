@@ -2,57 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function SmartVideo({ src, className = "", poster = "" }) {
-  const videoRef = useRef(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    video.muted = true;
-    video.defaultMuted = true;
-    video.playsInline = true;
-    video.setAttribute("muted", "");
-    video.setAttribute("playsinline", "");
-    video.setAttribute("webkit-playsinline", "");
-
-    const tryPlay = async () => {
-      try {
-        await video.play();
-      } catch (_) {}
-    };
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!video) return;
-
-          if (entry.isIntersecting) {
-            tryPlay();
-          } else {
-            video.pause();
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-
-    observer.observe(video);
-
-    video.addEventListener("loadedmetadata", tryPlay);
-    video.addEventListener("loadeddata", tryPlay);
-    video.addEventListener("canplay", tryPlay);
-
-    return () => {
-      observer.disconnect();
-      video.removeEventListener("loadedmetadata", tryPlay);
-      video.removeEventListener("loadeddata", tryPlay);
-      video.removeEventListener("canplay", tryPlay);
-    };
-  }, []);
-
   return (
     <video
-      ref={videoRef}
       muted
       defaultMuted
       loop
@@ -62,14 +13,139 @@ function SmartVideo({ src, className = "", poster = "" }) {
       poster={poster}
       className={className}
       style={{ backgroundColor: "#000" }}
+      onLoadedMetadata={(e) => {
+        e.currentTarget.play().catch(() => {});
+      }}
+      onCanPlay={(e) => {
+        e.currentTarget.play().catch(() => {});
+      }}
     >
       <source src={src} type="video/mp4" />
     </video>
   );
 }
 
+function PhotoCarousel({
+  photos = [],
+  title = "",
+  onPhotoClick,
+  bigImageClass = "h-[240px] sm:h-[280px]",
+  autoPlay = true,
+  interval = 3500,
+}) {
+  const [current, setCurrent] = useState(0);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  const total = photos.length;
+
+  const goTo = (index) => {
+    setCurrent(index);
+  };
+
+  const goNext = () => {
+    setCurrent((prev) => (prev + 1) % total);
+  };
+
+  const goPrev = () => {
+    setCurrent((prev) => (prev - 1 + total) % total);
+  };
+
+  useEffect(() => {
+    if (!autoPlay || total <= 1) return;
+
+    const timer = setInterval(() => {
+      goNext();
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [autoPlay, total, interval]);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.changedTouches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    const distance = touchStartX.current - touchEndX.current;
+
+    if (distance > 50) goNext();
+    if (distance < -50) goPrev();
+  };
+
+  if (!photos.length) return null;
+
+  return (
+    <div
+      className={`group relative overflow-hidden rounded-[1.2rem] border border-white/10 bg-black/20 ${bigImageClass}`}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <motion.div
+        className="flex h-full w-full"
+        animate={{ x: `-${current * 100}%` }}
+        transition={{ duration: 0.45, ease: "easeInOut" }}
+      >
+        {photos.map((photo, index) => (
+          <div key={index} className="min-w-full h-full">
+            <button
+              type="button"
+              onClick={() => onPhotoClick?.(photo)}
+              className="block h-full w-full"
+            >
+              <img
+                src={photo}
+                alt={`${title} ${index + 1}`}
+                className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                loading="lazy"
+              />
+            </button>
+          </div>
+        ))}
+      </motion.div>
+
+      {total > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={goPrev}
+            className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
+            aria-label="Foto anterior"
+          >
+            ‹
+          </button>
+
+          <button
+            type="button"
+            onClick={goNext}
+            className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
+            aria-label="Próxima foto"
+          >
+            ›
+          </button>
+
+          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-2 rounded-full border border-white/10 bg-black/35 px-3 py-2 backdrop-blur">
+            {photos.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => goTo(index)}
+                aria-label={`Ir para foto ${index + 1}`}
+                className={`h-2.5 w-2.5 rounded-full transition ${
+                  current === index ? "bg-white" : "bg-white/35"
+                }`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function SiteInfluencerManaus() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
 
   const VIDEO_PASSEIO =
     "https://res.cloudinary.com/dvyqn6i09/video/upload/f_mp4,q_auto:good,vc_h264/video-passeio_egzmvm.mp4";
@@ -85,30 +161,34 @@ export default function SiteInfluencerManaus() {
 
   const VIDEO_FUNDO = VIDEO_DESTAQUE;
 
-  const tourStops = [
+  const gallery = [
+    { video: VIDEO_DESTAQUE, poster: POSTER_DESTAQUE },
+    { video: VIDEO_PASSEIO, poster: POSTER_PASSEIO },
+  ];
+
+  const partnerGalleries = [
     {
       eyebrow: "Parceria 01",
       title: "Passeios e descobertas",
       text: "Lugares, experiências e espaços especiais mostrados com leveza, beleza e sensação de presença.",
-      video: VIDEO_PASSEIO,
-      poster: POSTER_PASSEIO,
       points: ["Experiência visual", "Atmosfera marcante", "Valor para o local"],
       accent: "Perfeito para lugares que querem ser lembrados.",
+      photos: [
+        "https://res.cloudinary.com/doidnldal/image/upload/v1774531914/WhatsApp_Image_2026-03-26_at_09.21.20_mzsmhz.jpg",
+      ],
     },
     {
       eyebrow: "Parceria 02",
       title: "Vivências e presença",
       text: "Conteúdos que mostram atmosfera, detalhes e estilo de forma natural, aproximando o público da experiência real.",
-      video: VIDEO_DESTAQUE,
-      poster: POSTER_DESTAQUE,
       points: ["Conteúdo autêntico", "Estética forte", "Conexão real"],
       accent: "Ideal para marcas e lugares que querem ser percebidos.",
+      photos: [
+        "https://res.cloudinary.com/doidnldal/image/upload/v1774531914/WhatsApp_Image_2026-03-26_at_09.21.20_mzsmhz.jpg",
+        "https://res.cloudinary.com/doidnldal/image/upload/v1774531914/WhatsApp_Image_2026-03-26_at_09.21.20_2_pzwcae.jpg",
+        "https://res.cloudinary.com/doidnldal/image/upload/v1774531914/WhatsApp_Image_2026-03-26_at_09.21.20_1_cbr1e9.jpg",
+      ],
     },
-  ];
-
-  const gallery = [
-    { video: VIDEO_DESTAQUE, poster: POSTER_DESTAQUE },
-    { video: VIDEO_PASSEIO, poster: POSTER_PASSEIO },
   ];
 
   const fadeUp = {
@@ -266,8 +346,7 @@ export default function SiteInfluencerManaus() {
             </span>
 
             <h1 className="mt-5 max-w-4xl text-[2.15rem] font-semibold leading-[1.02] sm:mt-6 sm:text-5xl sm:leading-[1.02] lg:text-[4.5rem]">
-              Marcas, lugares e experiências mostrados com estética, verdade e
-              conexão.
+              Descubra sabores, lugares e aventuras que fazem Manaus ser vivida de verdade.
             </h1>
 
             <p className="mt-5 max-w-2xl text-[0.98rem] leading-7 text-zinc-200 sm:mt-6 sm:text-lg sm:leading-8 md:text-xl">
@@ -385,7 +464,7 @@ export default function SiteInfluencerManaus() {
           </div>
 
           <div className="grid gap-6 sm:gap-8">
-            {tourStops.map((item, index) => {
+            {partnerGalleries.map((item, index) => {
               const isReversed = index % 2 !== 0;
 
               return (
@@ -439,15 +518,18 @@ export default function SiteInfluencerManaus() {
                   </div>
 
                   <div
-                    className={`order-1 overflow-hidden ${
+                    className={`order-1 p-4 sm:p-5 lg:p-6 ${
                       isReversed ? "lg:order-1" : "lg:order-2"
                     }`}
                   >
-                    <SmartVideo
-                      src={item.video}
-                      poster={item.poster}
-                      className="aspect-[9/12] w-full object-cover sm:aspect-[16/10] lg:h-full lg:min-h-[460px] lg:aspect-auto"
-                    />
+                    <PhotoCarousel
+                    photos={item.photos}
+                    title={item.title}
+                    onPhotoClick={(photo) => setSelectedPhoto(photo)}
+                    bigImageClass="h-[240px] sm:h-[280px] lg:h-[320px]"
+                    autoPlay={item.photos.length > 1}
+                    interval={3500}
+                      />
                   </div>
                 </motion.article>
               );
@@ -555,6 +637,46 @@ export default function SiteInfluencerManaus() {
           </div>
         </div>
       </section>
+
+      <AnimatePresence>
+        {selectedPhoto && (
+          <>
+            <motion.button
+              type="button"
+              aria-label="Fechar imagem"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedPhoto(null)}
+              className="fixed inset-0 z-[90] bg-black/80 backdrop-blur-sm"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.92 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[95] flex items-center justify-center p-4 sm:p-8"
+            >
+              <div className="relative w-full max-w-5xl overflow-hidden rounded-[1.6rem] border border-white/10 bg-black shadow-[0_30px_100px_rgba(0,0,0,0.55)]">
+                <button
+                  onClick={() => setSelectedPhoto(null)}
+                  className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/70 text-xl text-white transition hover:bg-black"
+                  aria-label="Fechar foto"
+                >
+                  ✕
+                </button>
+
+                <img
+                  src={selectedPhoto}
+                  alt="Foto ampliada"
+                  className="max-h-[85vh] w-full object-contain"
+                />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <a
         href="https://wa.me/5592999999999?text=Oi%2C%20vi%20o%20site%20e%20quero%20falar%20sobre%20uma%20parceria."
