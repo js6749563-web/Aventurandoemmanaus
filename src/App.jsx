@@ -1,14 +1,65 @@
-import { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function SmartVideo({ src, className = "", poster = "" }) {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+    video.setAttribute("muted", "");
+
+    const tryPlay = async () => {
+      try {
+        await video.play();
+      } catch (_) {}
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!video) return;
+
+          if (entry.isIntersecting) {
+            tryPlay();
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(video);
+
+    video.addEventListener("loadedmetadata", tryPlay);
+    video.addEventListener("loadeddata", tryPlay);
+    video.addEventListener("canplay", tryPlay);
+
+    return () => {
+      observer.disconnect();
+      video.removeEventListener("loadedmetadata", tryPlay);
+      video.removeEventListener("loadeddata", tryPlay);
+      video.removeEventListener("canplay", tryPlay);
+    };
+  }, []);
+
   return (
     <video
+      ref={videoRef}
       muted
+      defaultMuted
       loop
+      controls
       playsInline
       autoPlay
-      preload="metadata"
+      preload="auto"
       poster={poster}
       className={className}
     >
@@ -21,18 +72,18 @@ export default function SiteInfluencerManaus() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const VIDEO_PASSEIO =
-    "https://res.cloudinary.com/dvyqn6i09/video/upload/f_auto,q_auto/video-passeio_egzmvm.mp4";
+  "https://res.cloudinary.com/dvyqn6i09/video/upload/f_mp4,q_auto:good,vc_h264/video-passeio_egzmvm.mp4";
 
-  const VIDEO_DESTAQUE =
-    "https://res.cloudinary.com/dvyqn6i09/video/upload/f_auto,q_auto/video-destaque_a1rkzo.mp4";
+const VIDEO_DESTAQUE =
+  "https://res.cloudinary.com/dvyqn6i09/video/upload/f_mp4,q_auto:good,vc_h264/video-destaque_a1rkzo.mp4";
 
-  const POSTER_PASSEIO =
-    "https://res.cloudinary.com/dvyqn6i09/video/upload/so_0,f_jpg,q_auto/video-passeio_egzmvm.jpg";
+const POSTER_PASSEIO =
+  "https://res.cloudinary.com/dvyqn6i09/video/upload/so_0,f_jpg,q_auto/video-passeio_egzmvm.jpg";
 
-  const POSTER_DESTAQUE =
-    "https://res.cloudinary.com/dvyqn6i09/video/upload/so_0,f_jpg,q_auto/video-destaque_a1rkzo.jpg";
+const POSTER_DESTAQUE =
+  "https://res.cloudinary.com/dvyqn6i09/video/upload/so_0,f_jpg,q_auto/video-destaque_a1rkzo.jpg";
 
-  const VIDEO_FUNDO = VIDEO_DESTAQUE;
+const VIDEO_FUNDO = VIDEO_DESTAQUE;
 
   const tourStops = [
     {
