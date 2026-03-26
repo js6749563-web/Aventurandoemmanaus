@@ -11,9 +11,9 @@ function SmartVideo({ src, className = "", poster = "" }) {
     video.muted = true;
     video.defaultMuted = true;
     video.playsInline = true;
+    video.setAttribute("muted", "");
     video.setAttribute("playsinline", "");
     video.setAttribute("webkit-playsinline", "");
-    video.setAttribute("muted", "");
 
     const tryPlay = async () => {
       try {
@@ -56,12 +56,12 @@ function SmartVideo({ src, className = "", poster = "" }) {
       muted
       defaultMuted
       loop
-      controls
       playsInline
       autoPlay
       preload="auto"
       poster={poster}
       className={className}
+      style={{ backgroundColor: "#000" }}
     >
       <source src={src} type="video/mp4" />
     </video>
@@ -72,18 +72,18 @@ export default function SiteInfluencerManaus() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const VIDEO_PASSEIO =
-  "https://res.cloudinary.com/dvyqn6i09/video/upload/f_mp4,q_auto:good,vc_h264/video-passeio_egzmvm.mp4";
+    "https://res.cloudinary.com/dvyqn6i09/video/upload/f_mp4,q_auto:good,vc_h264/video-passeio_egzmvm.mp4";
 
-const VIDEO_DESTAQUE =
-  "https://res.cloudinary.com/dvyqn6i09/video/upload/f_mp4,q_auto:good,vc_h264/video-destaque_a1rkzo.mp4";
+  const VIDEO_DESTAQUE =
+    "https://res.cloudinary.com/dvyqn6i09/video/upload/f_mp4,q_auto:good,vc_h264/video-destaque_a1rkzo.mp4";
 
-const POSTER_PASSEIO =
-  "https://res.cloudinary.com/dvyqn6i09/video/upload/so_0,f_jpg,q_auto/video-passeio_egzmvm.jpg";
+  const POSTER_PASSEIO =
+    "https://res.cloudinary.com/dvyqn6i09/video/upload/so_0,f_jpg,q_auto/video-passeio_egzmvm.jpg";
 
-const POSTER_DESTAQUE =
-  "https://res.cloudinary.com/dvyqn6i09/video/upload/so_0,f_jpg,q_auto/video-destaque_a1rkzo.jpg";
+  const POSTER_DESTAQUE =
+    "https://res.cloudinary.com/dvyqn6i09/video/upload/so_0,f_jpg,q_auto/video-destaque_a1rkzo.jpg";
 
-const VIDEO_FUNDO = VIDEO_DESTAQUE;
+  const VIDEO_FUNDO = VIDEO_DESTAQUE;
 
   const tourStops = [
     {
@@ -564,7 +564,6 @@ const VIDEO_FUNDO = VIDEO_DESTAQUE;
       >
         Falar com ela
       </a>
-      // deploy
     </main>
   );
 }
