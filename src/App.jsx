@@ -29,35 +29,21 @@ function PhotoCarousel({
   photos = [],
   title = "",
   onPhotoClick,
-  bigImageClass = "h-[240px] sm:h-[280px]",
+  bigImageClass = "h-[240px] sm:h-[280px] lg:h-[320px]",
   autoPlay = true,
   interval = 3500,
 }) {
   const [current, setCurrent] = useState(0);
   const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
-
   const total = photos.length;
 
-  const goTo = (index) => {
-    setCurrent(index);
-  };
-
-  const goNext = () => {
-    setCurrent((prev) => (prev + 1) % total);
-  };
-
-  const goPrev = () => {
-    setCurrent((prev) => (prev - 1 + total) % total);
-  };
+  const goTo = (index) => setCurrent(index);
+  const goNext = () => setCurrent((prev) => (prev + 1) % total);
+  const goPrev = () => setCurrent((prev) => (prev - 1 + total) % total);
 
   useEffect(() => {
     if (!autoPlay || total <= 1) return;
-
-    const timer = setInterval(() => {
-      goNext();
-    }, interval);
-
+    const timer = setInterval(goNext, interval);
     return () => clearInterval(timer);
   }, [autoPlay, total, interval]);
 
@@ -66,8 +52,8 @@ function PhotoCarousel({
   };
 
   const handleTouchEnd = (e) => {
-    touchEndX.current = e.changedTouches[0].clientX;
-    const distance = touchStartX.current - touchEndX.current;
+    const touchEndX = e.changedTouches[0].clientX;
+    const distance = touchStartX.current - touchEndX;
 
     if (distance > 50) goNext();
     if (distance < -50) goPrev();
@@ -81,13 +67,19 @@ function PhotoCarousel({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <motion.div
-        className="flex h-full w-full"
-        animate={{ x: `-${current * 100}%` }}
-        transition={{ duration: 0.45, ease: "easeInOut" }}
+      <div
+        className="flex h-full transition-transform duration-500 ease-in-out"
+        style={{
+          width: `${photos.length * 100}%`,
+          transform: `translateX(-${current * (100 / photos.length)}%)`,
+        }}
       >
         {photos.map((photo, index) => (
-          <div key={index} className="min-w-full h-full">
+          <div
+            key={index}
+            className="h-full"
+            style={{ width: `${100 / photos.length}%` }}
+          >
             <button
               type="button"
               onClick={() => onPhotoClick?.(photo)}
@@ -102,7 +94,7 @@ function PhotoCarousel({
             </button>
           </div>
         ))}
-      </motion.div>
+      </div>
 
       {total > 1 && (
         <>
@@ -425,7 +417,7 @@ export default function SiteInfluencerManaus() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 bg-[#08120c]">
+     <section className="border-b border-white/10 bg-[#08120c]">
   <div className="mx-auto max-w-7xl px-4 py-5 sm:px-5 md:px-8 lg:px-14">
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {gallery.map((item, index) => (
