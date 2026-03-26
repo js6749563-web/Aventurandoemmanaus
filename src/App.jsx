@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function SmartVideo({ src, className = "", poster = "" }) {
@@ -25,161 +25,43 @@ function SmartVideo({ src, className = "", poster = "" }) {
   );
 }
 
-function PhotoCarousel({
-  photos = [],
-  title = "",
-  onPhotoClick,
-  bigImageClass = "h-[240px] sm:h-[280px] lg:h-[320px]",
-  autoPlay = true,
-  interval = 3500,
-}) {
-  const [current, setCurrent] = useState(0);
-  const touchStartX = useRef(0);
-  const total = photos.length;
-
-  const goTo = (index) => setCurrent(index);
-  const goNext = () => setCurrent((prev) => (prev + 1) % total);
-  const goPrev = () => setCurrent((prev) => (prev - 1 + total) % total);
-
-  useEffect(() => {
-    if (!autoPlay || total <= 1) return;
-    const timer = setInterval(goNext, interval);
-    return () => clearInterval(timer);
-  }, [autoPlay, total, interval]);
-
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.changedTouches[0].clientX;
-  };
-
-  const handleTouchEnd = (e) => {
-    const touchEndX = e.changedTouches[0].clientX;
-    const distance = touchStartX.current - touchEndX;
-
-    if (distance > 50) goNext();
-    if (distance < -50) goPrev();
-  };
-
-  if (!photos.length) return null;
-
-  return (
-    <div
-      className={`group relative overflow-hidden rounded-[1.2rem] border border-white/10 bg-black/20 ${bigImageClass}`}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-      <div
-        className="flex h-full transition-transform duration-500 ease-in-out"
-        style={{
-          width: `${photos.length * 100}%`,
-          transform: `translateX(-${current * (100 / photos.length)}%)`,
-        }}
-      >
-        {photos.map((photo, index) => (
-          <div
-            key={index}
-            className="h-full"
-            style={{ width: `${100 / photos.length}%` }}
-          >
-            <button
-              type="button"
-              onClick={() => onPhotoClick?.(photo)}
-              className="block h-full w-full"
-            >
-              <img
-                src={photo}
-                alt={`${title} ${index + 1}`}
-                className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
-                loading="lazy"
-              />
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {total > 1 && (
-        <>
-          <button
-            type="button"
-            onClick={goPrev}
-            className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
-            aria-label="Foto anterior"
-          >
-            ‹
-          </button>
-
-          <button
-            type="button"
-            onClick={goNext}
-            className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
-            aria-label="Próxima foto"
-          >
-            ›
-          </button>
-
-          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-2 rounded-full border border-white/10 bg-black/35 px-3 py-2 backdrop-blur">
-            {photos.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => goTo(index)}
-                aria-label={`Ir para foto ${index + 1}`}
-                className={`h-2.5 w-2.5 rounded-full transition ${
-                  current === index ? "bg-white" : "bg-white/35"
-                }`}
-              />
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
 export default function SiteInfluencerManaus() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
 
-  const VIDEO_PASSEIO =
-    "https://res.cloudinary.com/dvyqn6i09/video/upload/f_mp4,q_auto:good,vc_h264/video-passeio_egzmvm.mp4";
-
+  // VÍDEO DE COMIDA / DESTAQUE
   const VIDEO_DESTAQUE =
     "https://res.cloudinary.com/dvyqn6i09/video/upload/f_mp4,q_auto:good,vc_h264/video-destaque_a1rkzo.mp4";
-
-  const POSTER_PASSEIO =
-    "https://res.cloudinary.com/dvyqn6i09/video/upload/so_0,f_jpg,q_auto/video-passeio_egzmvm.jpg";
 
   const POSTER_DESTAQUE =
     "https://res.cloudinary.com/dvyqn6i09/video/upload/so_0,f_jpg,q_auto/video-destaque_a1rkzo.jpg";
 
+  // SEGUNDO VÍDEO
+  const VIDEO_PASSEIO =
+    "https://res.cloudinary.com/dvyqn6i09/video/upload/f_mp4,q_auto:good,vc_h264/video-passeio_egzmvm.mp4";
+
+  const POSTER_PASSEIO =
+    "https://res.cloudinary.com/dvyqn6i09/video/upload/so_0,f_jpg,q_auto/video-passeio_egzmvm.jpg";
+
+  // FUNDO DO INÍCIO
   const VIDEO_FUNDO = VIDEO_DESTAQUE;
+  const POSTER_FUNDO = POSTER_DESTAQUE;
 
   const gallery = [
-    { video: VIDEO_DESTAQUE, poster: POSTER_DESTAQUE },
-    { video: VIDEO_PASSEIO, poster: POSTER_PASSEIO },
-  ];
-
-  const partnerGalleries = [
     {
-      eyebrow: "Parceria 01",
-      title: "Passeios e descobertas",
-      text: "Lugares, experiências e espaços especiais mostrados com leveza, beleza e sensação de presença.",
-      points: ["Experiência visual", "Atmosfera marcante", "Valor para o local"],
-      accent: "Perfeito para lugares que querem ser lembrados.",
-      photos: [
-        "https://res.cloudinary.com/doidnldal/image/upload/v1774531914/WhatsApp_Image_2026-03-26_at_09.21.20_mzsmhz.jpg",
-      ],
+      eyebrow: "Destaque principal",
+      title: "Conteúdo que desperta desejo",
+      text: "Vídeo em destaque para apresentar experiências, sabores e momentos com uma estética forte, moderna e memorável.",
+      video: VIDEO_DESTAQUE,
+      poster: POSTER_DESTAQUE,
+      large: true,
     },
     {
-      eyebrow: "Parceria 02",
-      title: "Vivências e presença",
-      text: "Conteúdos que mostram atmosfera, detalhes e estilo de forma natural, aproximando o público da experiência real.",
-      points: ["Conteúdo autêntico", "Estética forte", "Conexão real"],
-      accent: "Ideal para marcas e lugares que querem ser percebidos.",
-      photos: [
-        "https://res.cloudinary.com/doidnldal/image/upload/v1774531914/WhatsApp_Image_2026-03-26_at_09.21.20_mzsmhz.jpg",
-        "https://res.cloudinary.com/doidnldal/image/upload/v1774531914/WhatsApp_Image_2026-03-26_at_09.21.20_2_pzwcae.jpg",
-        "https://res.cloudinary.com/doidnldal/image/upload/v1774531914/WhatsApp_Image_2026-03-26_at_09.21.20_1_cbr1e9.jpg",
-      ],
+      eyebrow: "Destaque extra",
+      title: "Vivência, presença e atmosfera",
+      text: "Outro recorte visual para mostrar lugares, experiências e a forma como a Esther transforma presença em conexão com o público.",
+      video: VIDEO_PASSEIO,
+      poster: POSTER_PASSEIO,
+      large: false,
     },
   ];
 
@@ -190,13 +72,12 @@ export default function SiteInfluencerManaus() {
 
   const navLinks = [
     ["Início", "#inicio"],
-    ["Parcerias", "#parcerias"],
     ["Contato", "#contato"],
   ];
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#06100a] text-white selection:bg-emerald-300 selection:text-black">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[rgba(5,10,7,0.78)] backdrop-blur-xl">
+    <main className="min-h-screen overflow-x-hidden bg-[#051009] text-white selection:bg-emerald-300 selection:text-black">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[rgba(4,10,7,0.78)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-5 md:px-8 lg:px-14">
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">
             <button
@@ -300,7 +181,7 @@ export default function SiteInfluencerManaus() {
                 </p>
                 <p className="mt-3 text-sm leading-7 text-zinc-300">
                   Gostou do estilo da Esther e quer divulgar sua marca de forma
-                  natural e profissional?
+                  natural, bonita e profissional?
                 </p>
                 <a
                   href="#contato"
@@ -318,14 +199,14 @@ export default function SiteInfluencerManaus() {
       <section id="inicio" className="relative overflow-hidden border-b border-white/10">
         <SmartVideo
           src={VIDEO_FUNDO}
-          poster={POSTER_DESTAQUE}
-          className="absolute inset-0 h-full w-full object-cover opacity-35"
+          poster={POSTER_FUNDO}
+          className="absolute inset-0 h-full w-full object-cover opacity-30"
         />
 
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,8,6,0.84)_0%,rgba(4,8,6,0.74)_35%,rgba(4,8,6,0.58)_60%,rgba(4,8,6,0.72)_100%)] lg:bg-[linear-gradient(90deg,rgba(4,8,6,0.82)_0%,rgba(4,8,6,0.62)_35%,rgba(4,8,6,0.42)_60%,rgba(4,8,6,0.60)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(40,109,67,0.22),transparent_35%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,8,6,0.88)_0%,rgba(4,8,6,0.76)_38%,rgba(4,8,6,0.70)_65%,rgba(4,8,6,0.88)_100%)] lg:bg-[linear-gradient(90deg,rgba(4,8,6,0.90)_0%,rgba(4,8,6,0.75)_36%,rgba(4,8,6,0.42)_64%,rgba(4,8,6,0.72)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(40,109,67,0.20),transparent_35%)]" />
 
-        <div className="relative mx-auto grid min-h-[auto] max-w-7xl gap-8 px-4 pb-12 pt-10 sm:px-5 sm:pb-14 sm:pt-12 md:px-8 lg:min-h-[78vh] lg:grid-cols-[1.15fr_0.85fr] lg:items-end lg:gap-10 lg:px-14 lg:pt-16">
+        <div className="relative mx-auto grid max-w-7xl gap-8 px-4 pb-14 pt-12 sm:px-5 sm:pb-16 sm:pt-14 md:px-8 lg:min-h-[82vh] lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:gap-12 lg:px-14 lg:py-20">
           <motion.div
             initial="hidden"
             animate="show"
@@ -334,47 +215,47 @@ export default function SiteInfluencerManaus() {
             className="max-w-4xl"
           >
             <span className="inline-flex rounded-full border border-emerald-200/20 bg-emerald-400/15 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.22em] text-emerald-100 backdrop-blur sm:px-4 sm:text-xs sm:tracking-[0.28em]">
-              Conteúdo, presença e parcerias
+              Conteúdo, imagem e presença
             </span>
 
-            <h1 className="mt-5 max-w-4xl text-[2.15rem] font-semibold leading-[1.02] sm:mt-6 sm:text-5xl sm:leading-[1.02] lg:text-[4.5rem]">
-              Descubra sabores, lugares e aventuras que fazem Manaus ser vivida de verdade.
+            <h1 className="mt-5 max-w-4xl text-[2.3rem] font-semibold leading-[1.02] sm:mt-6 sm:text-5xl sm:leading-[1.02] lg:text-[4.7rem]">
+              Descubra sabores, lugares e experiências com uma presença que chama atenção de verdade.
             </h1>
 
             <p className="mt-5 max-w-2xl text-[0.98rem] leading-7 text-zinc-200 sm:mt-6 sm:text-lg sm:leading-8 md:text-xl">
-              Esther cria conteúdos que aproximam pessoas de negócios,
-              experiências e marcas de forma natural. Cada vídeo valoriza o que
-              existe de especial e transforma presença em desejo.
+              Esther cria conteúdos visuais que valorizam marcas, experiências
+              e ambientes de forma natural. O objetivo é transformar presença
+              em desejo, conexão e lembrança.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-4">
               <a
-                href="#parcerias"
+                href="#contato"
                 className="inline-flex w-full items-center justify-center rounded-full bg-white px-6 py-3.5 text-base font-semibold text-black transition hover:scale-[1.02] sm:w-auto sm:px-7"
               >
-                Ver parcerias
+                Falar com ela
               </a>
               <a
-                href="#contato"
+                href="#destaques"
                 className="inline-flex w-full items-center justify-center rounded-full border border-white/15 bg-black/20 px-6 py-3.5 text-base font-medium text-white backdrop-blur transition hover:bg-white/10 sm:w-auto sm:px-7"
               >
-                Falar com ela
+                Ver destaques
               </a>
             </div>
 
             <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-3">
               {[
                 [
-                  "Marcas bem posicionadas",
-                  "Conteúdo que valoriza sem parecer anúncio forçado",
+                  "Imagem forte",
+                  "Conteúdo com estética limpa, moderna e marcante.",
                 ],
                 [
-                  "Experiência visual forte",
-                  "Vídeos que transmitem atmosfera e identidade",
+                  "Mais desejo",
+                  "Vídeos que valorizam o ambiente e despertam interesse.",
                 ],
                 [
-                  "Contato simples",
-                  "Quem se interessa consegue chamar direto",
+                  "Contato direto",
+                  "Quem gostar do trabalho pode chamar de forma simples.",
                 ],
               ].map(([title, text]) => (
                 <div
@@ -392,10 +273,10 @@ export default function SiteInfluencerManaus() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="mx-auto w-full max-w-[340px] justify-self-center lg:mx-0 lg:max-w-none lg:justify-self-end"
+            className="mx-auto w-full max-w-[360px] justify-self-center lg:mx-0 lg:max-w-none lg:justify-self-end"
           >
-            <div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[rgba(9,16,12,0.75)] p-2 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:rounded-[2rem]">
-              <div className="overflow-hidden rounded-[1.25rem] sm:rounded-[1.6rem]">
+            <div className="overflow-hidden rounded-[1.8rem] border border-white/10 bg-[rgba(9,16,12,0.72)] p-2 shadow-[0_30px_80px_rgba(0,0,0,0.48)] backdrop-blur-xl sm:rounded-[2rem]">
+              <div className="overflow-hidden rounded-[1.35rem] sm:rounded-[1.6rem]">
                 <SmartVideo
                   src={VIDEO_DESTAQUE}
                   poster={POSTER_DESTAQUE}
@@ -403,13 +284,13 @@ export default function SiteInfluencerManaus() {
                 />
               </div>
 
-              <div className="px-2 pb-1 pt-4 sm:pt-5">
+              <div className="px-3 pb-2 pt-4 sm:px-2 sm:pb-1 sm:pt-5">
                 <p className="text-[10px] uppercase tracking-[0.28em] text-emerald-200/80 sm:text-xs sm:tracking-[0.35em]">
                   Conteúdo em destaque
                 </p>
                 <p className="mt-3 text-sm leading-7 text-zinc-200">
-                  Um recorte do estilo visual e da forma como a Esther apresenta
-                  marcas, lugares e experiências.
+                  Vídeo principal para mostrar o estilo visual, a atmosfera e a
+                  forma como a Esther valoriza experiências e marcas.
                 </p>
               </div>
             </div>
@@ -417,120 +298,73 @@ export default function SiteInfluencerManaus() {
         </div>
       </section>
 
-     <section className="border-b border-white/10 bg-[#08120c]">
-  <div className="mx-auto max-w-7xl px-4 py-5 sm:px-5 md:px-8 lg:px-14">
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {gallery.map((item, index) => (
-        <div
-          key={index}
-          className="group overflow-hidden rounded-[1.25rem] border border-white/10 bg-black/20 shadow-[0_20px_50px_rgba(0,0,0,0.25)] sm:rounded-[1.4rem]"
-        >
-          <SmartVideo
-            src={item.video}
-            poster={item.poster}
-            className="aspect-[16/10] w-full object-cover opacity-90 transition duration-500 group-hover:scale-[1.03] sm:aspect-[16/9]"
-          />
-        </div>
-      ))}
-    </div>
-  </div>
-</section>
-
-      <section id="parcerias" className="border-y border-white/10 bg-white/[0.03]">
+      <section
+        id="destaques"
+        className="border-b border-white/10 bg-[linear-gradient(180deg,#07130c_0%,#04100a_100%)]"
+      >
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-5 sm:py-16 md:px-8 lg:px-14">
           <div className="mb-8 flex flex-col gap-4 sm:mb-10 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <p className="text-xs uppercase tracking-[0.26em] text-emerald-300 sm:text-sm sm:tracking-[0.3em]">
-                Parcerias
+                Destaques
               </p>
               <h2 className="mt-4 text-[2rem] font-semibold leading-tight sm:text-4xl md:text-5xl">
-                Cada conteúdo aproxima o público da marca de forma leve,
-                estética e memorável.
+                Um visual mais limpo, forte e profissional para apresentar o que importa.
               </h2>
             </div>
             <p className="max-w-xl text-[0.98rem] leading-7 text-zinc-300 sm:text-base sm:leading-8">
-              Mais do que mostrar lugares, o objetivo é valorizar experiências,
-              produtos e negócios com um conteúdo que combina presença,
-              atmosfera e identidade.
+              Aqui ficam os vídeos principais, com foco em estética, presença e
+              valorização da experiência de forma simples e elegante.
             </p>
           </div>
 
-          <div className="grid gap-6 sm:gap-8">
-            {partnerGalleries.map((item, index) => {
-              const isReversed = index % 2 !== 0;
-
-              return (
-                <motion.article
-                  key={item.title}
-                  initial="hidden"
-                  whileInView="show"
-                  viewport={{ once: true, amount: 0.2 }}
-                  variants={fadeUp}
-                  transition={{ duration: 0.5, delay: index * 0.06 }}
-                  className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[linear-gradient(180deg,rgba(16,27,20,0.96),rgba(7,16,10,1))] shadow-[0_30px_80px_rgba(0,0,0,0.34)] sm:rounded-[2.2rem] lg:grid lg:grid-cols-[1.02fr_0.98fr]"
-                >
-                  <div
-                    className={`order-2 flex h-full flex-col justify-between p-5 sm:p-6 lg:p-12 ${
-                      isReversed ? "lg:order-2" : "lg:order-1"
-                    }`}
-                  >
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.28em] text-emerald-300 sm:text-xs sm:tracking-[0.35em]">
-                        {item.eyebrow}
-                      </p>
-
-                      <h3 className="mt-4 text-[2rem] font-semibold leading-tight sm:text-4xl md:text-5xl">
-                        {item.title}
-                      </h3>
-
-                      <p className="mt-4 max-w-xl text-[0.98rem] leading-7 text-zinc-300 sm:mt-5 sm:text-lg sm:leading-8">
-                        {item.text}
-                      </p>
-
-                      <div className="mt-6 flex flex-wrap gap-2.5 sm:mt-8 sm:gap-3">
-                        {item.points.map((point) => (
-                          <span
-                            key={point}
-                            className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-zinc-200 sm:px-4 sm:text-sm"
-                          >
-                            {point}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="mt-6 rounded-[1.25rem] border border-white/10 bg-black/20 p-4 sm:mt-8 sm:rounded-[1.5rem] sm:p-5">
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-emerald-300 sm:text-xs sm:tracking-[0.28em]">
-                        Destaque
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-zinc-200 sm:text-base">
-                        {item.accent}
-                      </p>
-                    </div>
+          <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+            {gallery.map((item, index) => (
+              <motion.article
+                key={item.title}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.2 }}
+                variants={fadeUp}
+                transition={{ duration: 0.5, delay: index * 0.08 }}
+                className={`overflow-hidden rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(14,24,18,0.95),rgba(6,14,9,1))] shadow-[0_30px_80px_rgba(0,0,0,0.34)] ${
+                  item.large ? "lg:min-h-[560px]" : "lg:min-h-[560px]"
+                }`}
+              >
+                <div className="p-3 sm:p-4">
+                  <div className="overflow-hidden rounded-[1.3rem] border border-white/10 bg-black/20">
+                    <SmartVideo
+                      src={item.video}
+                      poster={item.poster}
+                      className={`w-full object-cover ${
+                        item.large
+                          ? "aspect-[16/10] lg:aspect-[16/11]"
+                          : "aspect-[16/10] lg:aspect-[4/4.2]"
+                      }`}
+                    />
                   </div>
+                </div>
 
-                  <div
-                    className={`order-1 p-4 sm:p-5 lg:p-6 ${
-                      isReversed ? "lg:order-1" : "lg:order-2"
-                    }`}
-                  >
-                    <PhotoCarousel
-                    photos={item.photos}
-                    title={item.title}
-                    onPhotoClick={(photo) => setSelectedPhoto(photo)}
-                    bigImageClass="h-[240px] sm:h-[280px] lg:h-[320px]"
-                    autoPlay={item.photos.length > 1}
-                    interval={3500}
-                      />
-                  </div>
-                </motion.article>
-              );
-            })}
+                <div className="px-5 pb-5 pt-2 sm:px-6 sm:pb-6">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-emerald-300 sm:text-xs sm:tracking-[0.35em]">
+                    {item.eyebrow}
+                  </p>
+
+                  <h3 className="mt-4 text-[1.65rem] font-semibold leading-tight text-white sm:text-3xl">
+                    {item.title}
+                  </h3>
+
+                  <p className="mt-4 max-w-2xl text-[0.98rem] leading-7 text-zinc-300 sm:text-base sm:leading-8">
+                    {item.text}
+                  </p>
+                </div>
+              </motion.article>
+            ))}
           </div>
         </div>
       </section>
 
-      <section id="contato" className="border-y border-white/10 bg-white/[0.03]">
+      <section id="contato" className="border-b border-white/10 bg-white/[0.03]">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-5 sm:py-16 md:px-8 lg:px-14">
           <div className="grid gap-5 sm:gap-7 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="rounded-[1.6rem] border border-white/10 bg-[linear-gradient(180deg,rgba(17,27,20,0.9),rgba(9,17,11,1))] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.30)] sm:rounded-[2rem] sm:p-8">
@@ -557,7 +391,8 @@ export default function SiteInfluencerManaus() {
                 </p>
                 <p>
                   <span className="font-medium text-white">Atendimento:</span>{" "}
-                  Parcerias, divulgação, presença em locais e campanhas visuais
+                  Divulgação, presença em locais, campanhas visuais e parcerias
+                  estratégicas
                 </p>
               </div>
             </div>
@@ -567,12 +402,11 @@ export default function SiteInfluencerManaus() {
                 Fale com ela
               </p>
               <h2 className="mt-4 text-[2rem] font-semibold leading-tight sm:text-4xl md:text-5xl">
-                Gostou do que viu? Fale com a Esther e leve sua marca para esse
-                espaço.
+                Gostou do que viu? Leve sua marca para esse espaço.
               </h2>
               <p className="mt-4 max-w-2xl text-[0.98rem] leading-7 text-zinc-300 sm:mt-5 sm:text-lg sm:leading-8">
-                Uma conversa direta, simples e sem burocracia para quem quer
-                construir uma boa parceria.
+                Uma conversa simples, direta e profissional para construir uma
+                parceria bonita e estratégica.
               </p>
 
               <div className="mt-8 grid gap-4 sm:mt-10 md:grid-cols-2 md:gap-5">
@@ -617,58 +451,18 @@ export default function SiteInfluencerManaus() {
 
               <div className="mt-6 rounded-[1.3rem] border border-white/10 bg-black/20 p-4 sm:mt-8 sm:rounded-[1.6rem] sm:p-5">
                 <p className="text-[10px] uppercase tracking-[0.24em] text-emerald-300 sm:text-xs sm:tracking-[0.28em]">
-                  Para quem faz sentido
+                  Ideal para
                 </p>
                 <p className="mt-3 text-sm leading-7 text-zinc-200 sm:text-base sm:leading-8">
-                  Restaurantes, cafeterias, eventos, locais turísticos, marcas,
-                  experiências e negócios que querem aparecer com mais
-                  presença, estética e conexão com o público.
+                  Restaurantes, cafeterias, marcas, espaços, eventos,
+                  experiências e negócios que querem se apresentar com mais
+                  presença, beleza e conexão com o público.
                 </p>
               </div>
             </div>
           </div>
         </div>
       </section>
-
-      <AnimatePresence>
-        {selectedPhoto && (
-          <>
-            <motion.button
-              type="button"
-              aria-label="Fechar imagem"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedPhoto(null)}
-              className="fixed inset-0 z-[90] bg-black/80 backdrop-blur-sm"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.92 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[95] flex items-center justify-center p-4 sm:p-8"
-            >
-              <div className="relative w-full max-w-5xl overflow-hidden rounded-[1.6rem] border border-white/10 bg-black shadow-[0_30px_100px_rgba(0,0,0,0.55)]">
-                <button
-                  onClick={() => setSelectedPhoto(null)}
-                  className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/70 text-xl text-white transition hover:bg-black"
-                  aria-label="Fechar foto"
-                >
-                  ✕
-                </button>
-
-                <img
-                  src={selectedPhoto}
-                  alt="Foto ampliada"
-                  className="max-h-[85vh] w-full object-contain"
-                />
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
 
       <a
         href="https://wa.me/5592999999999?text=Oi%2C%20vi%20o%20site%20e%20quero%20falar%20sobre%20uma%20parceria."
